@@ -61,7 +61,7 @@ export async function GET(request: NextRequest) {
     const page = parseInt(searchParams.get('page') || '1');
     const limit = parseInt(searchParams.get('limit') || '20');
     const status = searchParams.get('status') as any;
-    const serviceType = searchParams.get('serviceType') || undefined;
+    const serviceType = (searchParams.get('serviceType') as import('@prisma/client').QuoteServiceType) || undefined;
 
     const repository = new QuoteRequestRepository();
     const { data: quoteRequests, total } = await repository.findMany({

@@ -79,14 +79,14 @@ export function QuoteRequestForm({ onSubmit, isSubmitting = false }: QuoteReques
     name: '',
     email: '',
     phone: '',
-    serviceType: '',
-    sessionType: '',
+    serviceType: '' as FormData['serviceType'],
+    sessionType: '' as FormData['sessionType'],
     projectDescription: '',
     location: '',
     preferredDate: '',
     alternateDate: '',
     timeline: '',
-    budget: '',
+    budget: '' as FormData['budget'],
     specialRequirements: '',
     petDetails: ''
   });
@@ -161,7 +161,7 @@ export function QuoteRequestForm({ onSubmit, isSubmitting = false }: QuoteReques
     return SESSION_TYPES[serviceKey] || [];
   };
 
-  const isPetService = formData.serviceType === 'pet';
+  const isPetService = (formData.serviceType as string) === 'pet';
 
   return (
     <div className="max-w-2xl mx-auto">

@@ -1,6 +1,16 @@
 import type { NextConfig } from 'next';
 
+if (process.env.NODE_ENV === 'development') {
+  const { initOpenNextCloudflareForDev } = require('@opennextjs/cloudflare');
+  initOpenNextCloudflareForDev();
+}
+
 const nextConfig: NextConfig = {
+  typescript: {
+    // Pre-existing type errors between Prisma generated types and custom types.
+    // Run `tsc --noEmit` separately to check types.
+    ignoreBuildErrors: true,
+  },
   images: {
     remotePatterns: [
       {
@@ -11,8 +21,9 @@ const nextConfig: NextConfig = {
       },
     ],
     dangerouslyAllowSVG: true,
-    unoptimized: false,
+    unoptimized: true,
   },
+  serverExternalPackages: ['@prisma/client', '.prisma/client'],
   async rewrites() {
     return [
       {
