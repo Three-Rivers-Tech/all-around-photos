@@ -889,19 +889,24 @@ git commit -m "feat: replace homepage with temporary dark-themed placeholder"
 - [ ] **Step 1: Create product types and data**
 
 ```typescript
+import { z } from 'zod';
 import { type ProductCategory, PRODUCT_CATEGORIES } from '@/lib/constants';
 
-export interface Product {
-  id: string;
-  name: string;
-  description: string;
-  price: number; // in cents
-  category: ProductCategory;
-  sizes?: string[];
-  colors?: string[];
-  image: string; // path relative to /public/products/
-  featured?: boolean;
-}
+// Zod schema for build-time validation of product data
+const productSchema = z.object({
+  id: z.string().min(1),
+  name: z.string().min(1),
+  description: z.string().min(1),
+  price: z.number().int().positive(), // cents
+  category: z.enum(['hoodies', 'tshirts', 'coasters', 'other']),
+  sizes: z.array(z.string()).optional(),
+  colors: z.array(z.string()).optional(),
+  image: z.string().startsWith('/products/'),
+  featured: z.boolean().optional(),
+  version: z.number().int().positive(), // increment when price/details change
+});
+
+export type Product = z.infer<typeof productSchema>;
 
 export interface CartItem {
   product: Product;
@@ -911,7 +916,7 @@ export interface CartItem {
 }
 
 // Placeholder products — owner will replace images
-export const products: Product[] = [
+const rawProducts = [
   {
     id: 'classic-hoodie',
     name: 'Classic Logo Hoodie',
@@ -922,6 +927,7 @@ export const products: Product[] = [
     colors: ['Black', 'White', 'Gray'],
     image: '/products/placeholder-hoodie.jpg',
     featured: true,
+    version: 1,
   },
   {
     id: 'graphic-tee',
@@ -933,6 +939,7 @@ export const products: Product[] = [
     colors: ['Black', 'White'],
     image: '/products/placeholder-tee.jpg',
     featured: true,
+    version: 1,
   },
   {
     id: 'custom-coasters-set',
@@ -942,6 +949,7 @@ export const products: Product[] = [
     category: PRODUCT_CATEGORIES.COASTERS,
     image: '/products/placeholder-coasters.jpg',
     featured: true,
+    version: 1,
   },
   {
     id: 'premium-hoodie',
@@ -952,6 +960,7 @@ export const products: Product[] = [
     sizes: ['S', 'M', 'L', 'XL', '2XL'],
     colors: ['Black', 'Navy'],
     image: '/products/placeholder-hoodie-2.jpg',
+    version: 1,
   },
   {
     id: 'vintage-tee',
@@ -962,6 +971,7 @@ export const products: Product[] = [
     sizes: ['S', 'M', 'L', 'XL'],
     colors: ['Black', 'Charcoal'],
     image: '/products/placeholder-tee-2.jpg',
+    version: 1,
   },
   {
     id: 'photo-coasters',
@@ -970,8 +980,12 @@ export const products: Product[] = [
     price: 2000,
     category: PRODUCT_CATEGORIES.COASTERS,
     image: '/products/placeholder-coasters-2.jpg',
+    version: 1,
   },
-];
+] satisfies Product[];
+
+// Validate product data at module load (catches errors at dev/build time)
+export const products: Product[] = rawProducts.map((p) => productSchema.parse(p));
 
 export function getProductBySlug(slug: string): Product | undefined {
   return products.find((p) => p.id === slug);
@@ -1619,6 +1633,7 @@ export function CartItem({ item }: CartItemProps) {
 ```tsx
 'use client';
 
+import { useState } from 'react';
 import Link from 'next/link';
 import { useCart } from '@/lib/cart';
 import { CartItem } from '@/components/cart/CartItem';
@@ -1626,6 +1641,7 @@ import { formatCurrency } from '@/lib/utils';
 
 export default function CartPage() {
   const { items, totalPrice, clearCart } = useCart();
+  const [checkoutError, setCheckoutError] = useState<string | null>(null);
 
   if (items.length === 0) {
     return (
@@ -1643,8 +1659,6 @@ export default function CartPage() {
     );
   }
 
-  const [checkoutError, setCheckoutError] = useState<string | null>(null);
-
   const handleCheckout = async () => {
     setCheckoutError(null);
     try {
@@ -1653,11 +1667,11 @@ export default function CartPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           items: items.map((item) => ({
-            name: item.product.name,
-            price: item.product.price,
+            productId: item.product.id,
             quantity: item.quantity,
             size: item.size,
             color: item.color,
+            version: item.product.version,
           })),
         }),
       });
@@ -1741,14 +1755,21 @@ git commit -m "feat: add cart page with item management and checkout button"
 ```typescript
 import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
+import { z } from 'zod';
+import { getProductBySlug } from '@/lib/products';
+import { SITE_CONFIG } from '@/lib/constants';
 
-interface CheckoutItem {
-  name: string;
-  price: number; // cents
-  quantity: number;
-  size?: string;
-  color?: string;
-}
+const checkoutItemSchema = z.object({
+  productId: z.string().min(1),
+  quantity: z.number().int().min(1).max(50),
+  size: z.string().optional(),
+  color: z.string().optional(),
+  version: z.number().int(), // for stale cart detection
+});
+
+const checkoutRequestSchema = z.object({
+  items: z.array(checkoutItemSchema).min(1).max(50),
+});
 
 export async function POST(request: NextRequest) {
   try {
@@ -1761,25 +1782,53 @@ export async function POST(request: NextRequest) {
     }
 
     const stripe = new Stripe(key);
+    const body = await request.json();
+    const { items } = checkoutRequestSchema.parse(body);
 
-    const { items } = (await request.json()) as { items: CheckoutItem[] };
-
-    if (!items || items.length === 0) {
-      return NextResponse.json({ error: 'No items provided' }, { status: 400 });
+    // Server-side validation: look up each product and use authoritative data
+    const validatedItems = [];
+    for (const item of items) {
+      const product = getProductBySlug(item.productId);
+      if (!product) {
+        return NextResponse.json(
+          { error: `Product "${item.productId}" is no longer available.`, stale: true },
+          { status: 400 }
+        );
+      }
+      if (item.version !== product.version) {
+        return NextResponse.json(
+          { error: `Product "${product.name}" has been updated. Please review your cart.`, stale: true },
+          { status: 409 }
+        );
+      }
+      if (item.size && product.sizes && !product.sizes.includes(item.size)) {
+        return NextResponse.json(
+          { error: `Size "${item.size}" is not available for ${product.name}.` },
+          { status: 400 }
+        );
+      }
+      if (item.color && product.colors && !product.colors.includes(item.color)) {
+        return NextResponse.json(
+          { error: `Color "${item.color}" is not available for ${product.name}.` },
+          { status: 400 }
+        );
+      }
+      validatedItems.push({ product, quantity: item.quantity, size: item.size, color: item.color });
     }
 
     const origin = request.headers.get('origin') || process.env.NEXT_PUBLIC_SITE_URL || '';
 
     const session = await stripe.checkout.sessions.create({
       mode: 'payment',
-      line_items: items.map((item) => ({
+      line_items: validatedItems.map((item) => ({
         price_data: {
           currency: 'usd',
           product_data: {
-            name: item.name,
+            name: item.product.name,
             description: [item.size, item.color].filter(Boolean).join(' / ') || undefined,
+            images: [`${SITE_CONFIG.url}${item.product.image}`],
           },
-          unit_amount: item.price,
+          unit_amount: item.product.price, // authoritative price from server
         },
         quantity: item.quantity,
       })),
@@ -1789,13 +1838,14 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ url: session.url });
   } catch (err) {
+    if (err instanceof z.ZodError) {
+      return NextResponse.json({ error: 'Invalid cart data.' }, { status: 400 });
+    }
     console.error('Stripe checkout error:', err);
-    return NextResponse.json({ error: 'Failed to create checkout session' }, { status: 500 });
+    return NextResponse.json({ error: 'Something went wrong. Please try again.' }, { status: 502 });
   }
 }
 ```
-
-Note: The Stripe API version should match whatever version is current when the `stripe` package is installed. Adjust if needed.
 
 - [ ] **Step 2: Commit**
 
@@ -1989,49 +2039,102 @@ git commit -m "feat: rewrite email utility with generic notification system"
 - Create: `src/lib/validations/drone-quote.ts`
 - Create: `src/lib/validations/contact.ts`
 
-- [ ] **Step 1: Create custom order validation**
+- [ ] **Step 1: Create shared form utilities**
+
+Create `src/lib/validations/form-utils.ts`:
 
 ```typescript
 import { z } from 'zod';
+
+// Honeypot field — included in all form schemas, rejected if filled
+export const honeypotField = { website: z.string().max(0, 'Bot detected').optional() };
+
+// Safe URL validation — rejects javascript: and data: schemes
+export const safeUrlSchema = z.string().url('Must be a valid URL')
+  .refine((url) => {
+    try {
+      const parsed = new URL(url);
+      return ['http:', 'https:'].includes(parsed.protocol);
+    } catch { return false; }
+  }, 'Only http/https URLs are allowed')
+  .optional()
+  .or(z.literal(''));
+
+// Strip HTML tags from text input
+export function sanitizeText(text: string): string {
+  return text.replace(/<[^>]*>/g, '').trim();
+}
+
+// Generate a reference ID for form confirmations
+export function generateReferenceId(prefix: string): string {
+  return `${prefix}-${Date.now()}`;
+}
+
+// Simple in-memory rate limiter (per Cloudflare Workers request)
+const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
+
+export function checkRateLimit(ip: string, limit = 5, windowMs = 15 * 60 * 1000): boolean {
+  const now = Date.now();
+  const entry = rateLimitMap.get(ip);
+  if (!entry || now > entry.resetAt) {
+    rateLimitMap.set(ip, { count: 1, resetAt: now + windowMs });
+    return true;
+  }
+  if (entry.count >= limit) return false;
+  entry.count++;
+  return true;
+}
+```
+
+- [ ] **Step 2: Create custom order validation**
+
+```typescript
+import { z } from 'zod';
+import { honeypotField, safeUrlSchema } from './form-utils';
 
 export const customOrderSchema = z.object({
   name: z.string().min(1, 'Name is required').max(100),
   email: z.string().email('Invalid email address'),
   phone: z.string().optional(),
   itemType: z.enum(['Hoodie', 'T-Shirt', 'Coaster', 'Other']),
-  quantity: z.number().int().min(1, 'Minimum quantity is 1'),
+  quantity: z.number().int().min(1, 'Minimum quantity is 1').max(100),
   description: z.string().min(10, 'Please provide more details').max(2000),
-  designLink: z.string().url('Must be a valid URL').optional().or(z.literal('')),
+  designLink: safeUrlSchema,
+  ...honeypotField,
 });
 
 export type CustomOrderInput = z.infer<typeof customOrderSchema>;
 ```
 
-- [ ] **Step 2: Create drone quote validation**
+- [ ] **Step 3: Create drone quote validation**
 
 ```typescript
 import { z } from 'zod';
+import { honeypotField } from './form-utils';
 
 export const droneQuoteSchema = z.object({
   name: z.string().min(1, 'Name is required').max(100),
   email: z.string().email('Invalid email address'),
   propertyAddress: z.string().min(5, 'Please enter the property address').max(255),
   description: z.string().min(10, 'Please describe what you need').max(2000),
+  ...honeypotField,
 });
 
 export type DroneQuoteInput = z.infer<typeof droneQuoteSchema>;
 ```
 
-- [ ] **Step 3: Create contact validation**
+- [ ] **Step 4: Create contact validation**
 
 ```typescript
 import { z } from 'zod';
+import { honeypotField } from './form-utils';
 
 export const contactSchema = z.object({
   name: z.string().min(1, 'Name is required').max(100),
   email: z.string().email('Invalid email address'),
   subject: z.enum(['Custom Apparel', 'Drone Photography', 'General Inquiry', 'Other']),
   message: z.string().min(10, 'Please provide more details').max(2000),
+  ...honeypotField,
 });
 
 export type ContactInput = z.infer<typeof contactSchema>;
@@ -2058,26 +2161,55 @@ git commit -m "feat: add Zod validation schemas for custom order, drone quote, a
 import { NextRequest, NextResponse } from 'next/server';
 import { customOrderSchema } from '@/lib/validations/custom-order';
 import { sendEmailNotification, buildCustomOrderEmail } from '@/lib/email';
+import { checkRateLimit, sanitizeText, generateReferenceId } from '@/lib/validations/form-utils';
 
 export async function POST(request: NextRequest) {
   try {
+    // Rate limit by IP
+    const ip = request.headers.get('x-forwarded-for') || 'unknown';
+    if (!checkRateLimit(ip)) {
+      return NextResponse.json({ error: 'Too many requests. Please try again later.' }, { status: 429 });
+    }
+
     const body = await request.json();
     const data = customOrderSchema.parse(body);
-    const email = buildCustomOrderEmail(data);
+
+    // Honeypot check — if website field is filled, silently succeed (fool the bot)
+    if (data.website) {
+      return NextResponse.json({ success: true, referenceId: 'CO-0000000000000' });
+    }
+
+    // Sanitize text inputs
+    const sanitized = {
+      ...data,
+      name: sanitizeText(data.name),
+      description: sanitizeText(data.description),
+      phone: data.phone ? sanitizeText(data.phone) : undefined,
+    };
+
+    const referenceId = generateReferenceId('CO');
+    const email = buildCustomOrderEmail(sanitized);
+    email.subject = `[${referenceId}] ${email.subject}`;
     await sendEmailNotification(email);
-    return NextResponse.json({ success: true });
+
+    return NextResponse.json({ success: true, referenceId });
   } catch (err) {
     if (err instanceof Error && 'issues' in err) {
       return NextResponse.json({ error: 'Validation failed', details: err }, { status: 400 });
     }
+    console.error('Custom order submission error:', err);
     return NextResponse.json({ error: 'Failed to submit' }, { status: 500 });
   }
 }
 ```
 
-- [ ] **Step 2: Create drone quote API route** (same pattern, using `droneQuoteSchema` and `buildDroneQuoteEmail`)
+- [ ] **Step 2: Create drone quote API route**
 
-- [ ] **Step 3: Create contact API route** (same pattern, using `contactSchema` and `buildContactEmail`)
+Same pattern as custom order, using `droneQuoteSchema` and `buildDroneQuoteEmail`. Use `generateReferenceId('DQ')` for drone quote reference IDs. Include rate limiting, honeypot check, and text sanitization.
+
+- [ ] **Step 3: Create contact API route**
+
+Same pattern, using `contactSchema` and `buildContactEmail`. Use `generateReferenceId('CT')` for contact reference IDs. Include rate limiting, honeypot check, and text sanitization.
 
 - [ ] **Step 4: Commit**
 
@@ -2098,13 +2230,17 @@ git commit -m "feat: add API routes for custom order, drone quote, and contact f
 
 Client component with controlled inputs, client-side Zod validation, POST to `/api/custom-order`, success/error states. Fields: name, email, phone, item type (dropdown), quantity, description, design link. Dark theme input styling using `input-field` class.
 
+**Honeypot field:** Include a visually hidden `website` input (`className="absolute -left-[9999px] opacity-0 h-0 w-0"`, `tabIndex={-1}`, `autoComplete="off"`). This gets submitted with the form data but real users never see it.
+
+**Confirmation UX:** On success, the API returns `{ success: true, referenceId: "CO-1710091234567" }`. Replace the form with a confirmation screen showing: "Your request has been submitted!", the reference ID styled prominently, and a note: "Save this reference ID for your records. We'll be in touch soon."
+
 - [ ] **Step 2: Create DroneQuoteForm**
 
-Same pattern. Fields: name, email, property address, description.
+Same pattern. Fields: name, email, property address, description. Include honeypot field. Confirmation shows reference ID with `DQ-` prefix.
 
 - [ ] **Step 3: Create ContactForm**
 
-Same pattern. Fields: name, email, subject (dropdown), message.
+Same pattern. Fields: name, email, subject (dropdown), message. Include honeypot field. Confirmation shows reference ID with `CT-` prefix.
 
 - [ ] **Step 4: Commit**
 
@@ -2121,7 +2257,7 @@ git commit -m "feat: add custom order, drone quote, and contact form components"
 
 - [ ] **Step 1: Create custom orders page**
 
-Two sections: gallery grid of custom work photos (placeholder images for now in `/public/custom-work/`), then the `CustomOrderForm` component below.
+Two sections: gallery grid of custom work photos (placeholder images for now in `/public/custom-work/`), then the `CustomOrderForm` component below. The form handles its own confirmation UX internally (shows reference ID on success).
 
 ```bash
 mkdir -p public/custom-work
@@ -2142,7 +2278,7 @@ git commit -m "feat: add custom orders page with gallery and order form"
 
 - [ ] **Step 1: Create drone services page**
 
-Hero section, service description, drone photo gallery grid (placeholder images in `/public/drone/`), then `DroneQuoteForm` component.
+Hero section, service description, drone photo gallery grid (placeholder images in `/public/drone/`), then `DroneQuoteForm` component. The form handles its own confirmation UX internally (shows reference ID on success).
 
 ```bash
 mkdir -p public/drone
