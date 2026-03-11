@@ -2,13 +2,12 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { SITE_CONFIG } from '@/lib/constants';
 import { cn } from '@/lib/utils';
 
 const navigation = [
-  { name: 'Home', href: '/' },
-  { name: 'Gallery', href: '/gallery' },
-  { name: 'Services', href: '/services' },
+  { name: 'Shop', href: '/shop' },
+  { name: 'Custom', href: '/custom' },
+  { name: 'Drone', href: '/drone' },
   { name: 'About', href: '/about' },
   { name: 'Contact', href: '/contact' },
 ];
@@ -16,121 +15,99 @@ const navigation = [
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-  const toggleMenu = () => {
-    setIsMenuOpen(!isMenuOpen);
-  };
-
   return (
-    <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-sm border-b border-neutral-200">
+    <header className="sticky top-0 z-50 border-b border-border bg-bg/95 backdrop-blur-sm">
       <div className="container mx-auto px-4">
-        <div className="flex items-center justify-between h-16">
+        <div className="flex h-16 items-center justify-between">
           {/* Logo */}
-          <Link 
-            href="/" 
-            className="flex items-center space-x-2 text-primary-900 hover:text-primary-700 transition-colors"
+          <Link
+            href="/"
+            className="text-lg font-black uppercase tracking-[0.15em] text-white transition-colors hover:text-accent"
           >
-            <div className="w-8 h-8 bg-primary-600 rounded-full flex items-center justify-center">
-              <span className="text-white font-bold text-sm">AP</span>
-            </div>
-            <span className="font-bold text-lg hidden sm:block">
-              {SITE_CONFIG.name}
-            </span>
+            All Around
           </Link>
 
           {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center space-x-8">
+          <nav className="hidden items-center space-x-8 md:flex">
             {navigation.map((item) => (
               <Link
                 key={item.name}
                 href={item.href}
-                className="text-neutral-700 hover:text-primary-600 font-medium transition-colors relative group"
+                className="text-sm font-semibold uppercase tracking-wide text-text-secondary transition-colors hover:text-white"
               >
                 {item.name}
-                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary-600 transition-all group-hover:w-full" />
               </Link>
             ))}
           </nav>
 
-          {/* CTA Buttons */}
-          <div className="hidden md:flex items-center space-x-4">
+          {/* Cart icon placeholder — will be replaced with CartIcon component */}
+          <div className="hidden md:flex items-center">
             <Link
-              href="/quote"
-              className="text-primary-600 hover:text-primary-700 px-4 py-2 rounded-lg font-medium transition-colors border border-primary-600 hover:bg-primary-50"
+              href="/cart"
+              className="relative text-text-secondary transition-colors hover:text-white"
+              aria-label="Shopping cart"
             >
-              Get Quote
-            </Link>
-            <Link
-              href="/book"
-              className="bg-accent-500 hover:bg-accent-600 text-white px-4 py-2 rounded-lg font-medium transition-colors"
-            >
-              Book Session
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 100 4 2 2 0 000-4z" />
+              </svg>
             </Link>
           </div>
 
           {/* Mobile Menu Button */}
           <button
             type="button"
-            onClick={toggleMenu}
-            className="md:hidden p-2 rounded-lg text-neutral-700 hover:text-primary-600 hover:bg-neutral-100 transition-colors"
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+            className="rounded p-2 text-text-secondary transition-colors hover:text-white md:hidden"
             aria-label="Toggle menu"
           >
-            <div className="w-6 h-6 flex flex-col justify-center items-center">
+            <div className="flex h-6 w-6 flex-col items-center justify-center">
               <span
                 className={cn(
-                  'block w-5 h-0.5 bg-current transition-all duration-300',
-                  isMenuOpen ? 'rotate-45 translate-y-1' : '-translate-y-1'
+                  'block h-0.5 w-5 bg-current transition-all duration-300',
+                  isMenuOpen ? 'translate-y-1 rotate-45' : '-translate-y-1'
                 )}
               />
               <span
                 className={cn(
-                  'block w-5 h-0.5 bg-current transition-all duration-300',
+                  'block h-0.5 w-5 bg-current transition-all duration-300',
                   isMenuOpen ? 'opacity-0' : 'opacity-100'
                 )}
               />
               <span
                 className={cn(
-                  'block w-5 h-0.5 bg-current transition-all duration-300',
-                  isMenuOpen ? '-rotate-45 -translate-y-1' : 'translate-y-1'
+                  'block h-0.5 w-5 bg-current transition-all duration-300',
+                  isMenuOpen ? '-translate-y-1 -rotate-45' : 'translate-y-1'
                 )}
               />
             </div>
           </button>
         </div>
 
-        {/* Mobile Navigation Menu */}
+        {/* Mobile Navigation */}
         <div
           className={cn(
-            'md:hidden overflow-hidden transition-all duration-300 ease-in-out',
+            'overflow-hidden transition-all duration-300 ease-in-out md:hidden',
             isMenuOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
           )}
         >
-          <nav className="py-4 space-y-2 border-t border-neutral-200">
+          <nav className="space-y-1 border-t border-border py-4">
             {navigation.map((item) => (
               <Link
                 key={item.name}
                 href={item.href}
                 onClick={() => setIsMenuOpen(false)}
-                className="block px-4 py-2 text-neutral-700 hover:text-primary-600 hover:bg-neutral-50 rounded-lg transition-colors"
+                className="block px-4 py-2 text-sm font-semibold uppercase tracking-wide text-text-secondary transition-colors hover:text-white"
               >
                 {item.name}
               </Link>
             ))}
-            <div className="px-4 pt-4 border-t border-neutral-200 space-y-2">
-              <Link
-                href="/quote"
-                onClick={() => setIsMenuOpen(false)}
-                className="block w-full text-center border border-primary-600 text-primary-600 hover:bg-primary-50 px-4 py-2 rounded-lg font-medium transition-colors"
-              >
-                Get Quote
-              </Link>
-              <Link
-                href="/book"
-                onClick={() => setIsMenuOpen(false)}
-                className="block w-full text-center bg-accent-500 hover:bg-accent-600 text-white px-4 py-2 rounded-lg font-medium transition-colors"
-              >
-                Book Session
-              </Link>
-            </div>
+            <Link
+              href="/cart"
+              onClick={() => setIsMenuOpen(false)}
+              className="block px-4 py-2 text-sm font-semibold uppercase tracking-wide text-text-secondary transition-colors hover:text-white"
+            >
+              Cart
+            </Link>
           </nav>
         </div>
       </div>

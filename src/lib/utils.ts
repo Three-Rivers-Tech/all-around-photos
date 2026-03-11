@@ -27,6 +27,7 @@ export function formatDate(date: Date): string {
     month: 'long',
     day: 'numeric',
   }).format(date);
+}
 
 /**
  * Validate email format
