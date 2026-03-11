@@ -4,13 +4,6 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { Button } from '@/components/ui/Button';
 
-export function FeaturedWork() {
-'use client';
-
-import Image from 'next/image';
-import Link from 'next/link';
-import { Button } from '@/components/ui/Button';
-
 const featuredProjects = [
   {
     id: 1,
@@ -36,11 +29,6 @@ const featuredProjects = [
 ];
 
 export function FeaturedWork() {
-  return (
-    // ... rest of component
-  );
-}
-
   return (
     <section className="py-20 bg-slate-50">
       <div className="container mx-auto px-4">

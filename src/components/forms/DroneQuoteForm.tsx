@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { droneQuoteSchema } from '@/lib/validations/drone-quote';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
@@ -43,6 +43,16 @@ export function DroneQuoteForm() {
       }));
     }
   };
+
+  const handleFieldChange = useCallback(
+    (fieldName: string) => (value: string) => {
+      setFormData((prev) => ({
+        ...prev,
+        [fieldName]: value,
+      }));
+    },
+    []
+  );
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -188,7 +198,7 @@ export function DroneQuoteForm() {
         <Select
           name="propertyType"
           value={formData.propertyType}
-          onChange={(value) => setFormData(prev => ({ ...prev, propertyType: value }))}
+          onChange={handleFieldChange('propertyType')}
           options={[
             { value: 'residential', label: 'Residential' },
             { value: 'commercial', label: 'Commercial' },
@@ -245,7 +255,7 @@ export function DroneQuoteForm() {
         <Select
           name="timeline"
           value={formData.timeline}
-          onChange={(value) => setFormData(prev => ({ ...prev, timeline: value }))}
+          onChange={handleFieldChange('timeline')}
           options={[
             { value: 'asap', label: 'ASAP' },
             { value: '1-2-weeks', label: '1-2 weeks' },
@@ -264,7 +274,7 @@ export function DroneQuoteForm() {
         <Select
           name="budget"
           value={formData.budget}
-          onChange={(value) => setFormData(prev => ({ ...prev, budget: value }))}
+          onChange={handleFieldChange('budget')}
           options={[
             { value: '500-1000', label: '$500 - $1,000' },
             { value: '1000-2500', label: '$1,000 - $2,500' },

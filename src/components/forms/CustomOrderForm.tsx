@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { customOrderSchema } from '@/lib/validations/custom-order';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
@@ -29,6 +29,16 @@ export function CustomOrderForm() {
       [name]: value,
     }));
   };
+
+  const handleFieldChange = useCallback(
+    (fieldName: string) => (value: string) => {
+      setFormData((prev) => ({
+        ...prev,
+        [fieldName]: value,
+      }));
+    },
+    []
+  );
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -139,7 +149,7 @@ export function CustomOrderForm() {
         <Select
           name="style"
           value={formData.style}
-          onChange={(value) => setFormData(prev => ({ ...prev, style: value }))}
+          onChange={handleFieldChange('style')}
           options={[
             { value: 'streetwear', label: 'Streetwear' },
             { value: 'classic', label: 'Classic' },
@@ -158,7 +168,7 @@ export function CustomOrderForm() {
         <Select
           name="budget"
           value={formData.budget}
-          onChange={(value) => setFormData(prev => ({ ...prev, budget: value }))}
+          onChange={handleFieldChange('budget')}
           options={[
             { value: '100-250', label: '$100 - $250' },
             { value: '250-500', label: '$250 - $500' },
@@ -177,7 +187,7 @@ export function CustomOrderForm() {
         <Select
           name="timeline"
           value={formData.timeline}
-          onChange={(value) => setFormData(prev => ({ ...prev, timeline: value }))}
+          onChange={handleFieldChange('timeline')}
           options={[
             { value: '1-2-weeks', label: '1-2 weeks' },
             { value: '2-4-weeks', label: '2-4 weeks' },
