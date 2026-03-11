@@ -44,12 +44,13 @@ export function DroneQuoteForm() {
     }
   };
 
-  const fieldHandlers = useMemo(
-    () => ({
-      propertyType: (value: string) => setFormData((prev) => ({ ...prev, propertyType: value })),
-      timeline: (value: string) => setFormData((prev) => ({ ...prev, timeline: value })),
-      budget: (value: string) => setFormData((prev) => ({ ...prev, budget: value })),
-    }),
+  const handleFieldChange = useCallback(
+    (fieldName: string) => (value: string) => {
+      setFormData((prev) => ({
+        ...prev,
+        [fieldName]: value,
+      }));
+    },
     []
   );
 
