@@ -8,24 +8,24 @@ export function FeaturedWork() {
   const featuredProjects = [
     {
       id: 1,
-      title: 'Corporate Event Documentation',
-      category: 'Events',
-      image: '/images/featured-1.jpg',
-      description: 'Professional photography capturing 500+ attendees at annual corporate gala',
+      title: 'Aerial Landscape Photography',
+      category: 'Drone',
+      image: '/drone/DJI_0153.JPG',
+      description: 'Stunning high-altitude perspectives capturing natural beauty',
     },
     {
       id: 2,
-      title: 'Real Estate Portfolio',
-      category: 'Real Estate',
-      image: '/images/featured-2.jpg',
-      description: 'Stunning property photography showcasing luxury residential portfolio',
+      title: 'Urban Development Project',
+      category: 'Drone',
+      image: '/drone/DJI_0467.JPG',
+      description: 'Professional documentation of construction and development progress',
     },
     {
       id: 3,
-      title: 'Wedding Celebration',
-      category: 'Weddings',
-      image: '/images/featured-3.jpg',
-      description: 'Emotional moments and beautiful details from unforgettable day',
+      title: 'Real Estate Showcase',
+      category: 'Drone',
+      image: '/drone/DJI_0710.JPG',
+      description: 'Comprehensive aerial views of premium properties and estates',
     },
   ];
 

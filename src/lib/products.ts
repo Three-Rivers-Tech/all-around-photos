@@ -24,7 +24,7 @@ export interface CartItem {
   color?: string;
 }
 
-// Placeholder products — owner will replace images
+// Placeholder products — using actual images from public/products
 const rawProducts = [
   {
     id: 'classic-hoodie',
@@ -34,7 +34,7 @@ const rawProducts = [
     category: PRODUCT_CATEGORIES.HOODIES,
     sizes: ['S', 'M', 'L', 'XL', '2XL'],
     colors: ['Black', 'White', 'Gray'],
-    image: '/products/placeholder.svg',
+    image: '/products/Hoodie_Design_Grouped_ONE_PAGE_Preview-1.jpg',
     featured: true,
     version: 1,
   },
@@ -46,7 +46,7 @@ const rawProducts = [
     category: PRODUCT_CATEGORIES.TSHIRTS,
     sizes: ['S', 'M', 'L', 'XL', '2XL'],
     colors: ['Black', 'White'],
-    image: '/products/placeholder.svg',
+    image: '/products/IMG_20260219_151247049.jpg',
     featured: true,
     version: 1,
   },
@@ -56,7 +56,7 @@ const rawProducts = [
     description: 'Handcrafted coasters with custom designs.',
     price: 1500,
     category: PRODUCT_CATEGORIES.COASTERS,
-    image: '/products/placeholder.svg',
+    image: '/products/IMG_20260219_151652388.jpg',
     featured: true,
     version: 1,
   },
@@ -68,7 +68,7 @@ const rawProducts = [
     category: PRODUCT_CATEGORIES.HOODIES,
     sizes: ['S', 'M', 'L', 'XL', '2XL'],
     colors: ['Black', 'Navy'],
-    image: '/products/placeholder.svg',
+    image: '/products/IMG_20260219_152415910.jpg',
     version: 1,
   },
   {
@@ -79,7 +79,7 @@ const rawProducts = [
     category: PRODUCT_CATEGORIES.TSHIRTS,
     sizes: ['S', 'M', 'L', 'XL'],
     colors: ['Black', 'Charcoal'],
-    image: '/products/placeholder.svg',
+    image: '/products/IMG_20260219_152603907.jpg',
     version: 1,
   },
   {
@@ -88,7 +88,7 @@ const rawProducts = [
     description: 'Custom photo-printed coasters — great for gifts.',
     price: 2000,
     category: PRODUCT_CATEGORIES.COASTERS,
-    image: '/products/placeholder.svg',
+    image: '/products/IMG_20260219_152742485.jpg',
     version: 1,
   },
 ] satisfies Product[];
