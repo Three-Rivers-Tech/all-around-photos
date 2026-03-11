@@ -3,20 +3,20 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/Button';
 
 export const metadata: Metadata = {
-  title: 'Order Confirmed',
+  title: 'Order Confirmed | All Around Photos LLC',
   description: 'Your order has been successfully placed.',
 };
 
 export default function CheckoutSuccessPage() {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-green-50 to-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-black py-12 md:py-20 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md mx-auto text-center">
         {/* Success icon */}
         <div className="mb-8">
           <div className="flex justify-center">
-            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center">
+            <div className="w-16 h-16 bg-red-900/30 border border-red-600 rounded-full flex items-center justify-center">
               <svg
-                className="w-8 h-8 text-green-600"
+                className="w-8 h-8 text-red-600"
                 fill="currentColor"
                 viewBox="0 0 20 20"
               >
@@ -30,23 +30,27 @@ export default function CheckoutSuccessPage() {
           </div>
         </div>
 
-        <h1 className="text-4xl font-bold text-gray-900 mb-4">Order Confirmed!</h1>
+        <h1 className="text-4xl font-black uppercase tracking-[0.15em] text-white mb-4">
+          Order Confirmed!
+        </h1>
 
-        <p className="text-xl text-gray-600 mb-2">
-          Thank you for your purchase. Your order has been successfully placed.
+        <p className="text-xl text-gray-300 mb-2">
+          Thank you for your purchase.
         </p>
 
-        <p className="text-gray-600 mb-8">
-          You will receive an email confirmation shortly with your order details and tracking information.
+        <p className="text-gray-400 mb-8">
+          Your order has been successfully placed. You will receive an email confirmation shortly with your order details and tracking information.
         </p>
 
-        <div className="space-y-4">
-          <Link href="/shop">
-            <Button className="w-full">Continue Shopping</Button>
+        <div className="space-y-3">
+          <Link href="/shop" className="block">
+            <Button className="w-full bg-red-600 hover:bg-red-700">
+              Continue Shopping
+            </Button>
           </Link>
 
-          <Link href="/">
-            <Button variant="secondary" className="w-full text-gray-700">
+          <Link href="/" className="block">
+            <Button variant="secondary" className="w-full border border-gray-600 text-gray-300 hover:text-white">
               Return Home
             </Button>
           </Link>

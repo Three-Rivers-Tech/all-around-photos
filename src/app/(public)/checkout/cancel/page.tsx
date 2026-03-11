@@ -3,20 +3,20 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/Button';
 
 export const metadata: Metadata = {
-  title: 'Checkout Cancelled',
+  title: 'Checkout Cancelled | All Around Photos LLC',
   description: 'Your checkout was cancelled. Your cart items are still saved.',
 };
 
 export default function CheckoutCancelPage() {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-amber-50 to-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-black py-12 md:py-20 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md mx-auto text-center">
         {/* Warning icon */}
         <div className="mb-8">
           <div className="flex justify-center">
-            <div className="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center">
+            <div className="w-16 h-16 bg-yellow-900/30 border border-yellow-600 rounded-full flex items-center justify-center">
               <svg
-                className="w-8 h-8 text-amber-600"
+                className="w-8 h-8 text-yellow-600"
                 fill="currentColor"
                 viewBox="0 0 20 20"
               >
@@ -30,23 +30,27 @@ export default function CheckoutCancelPage() {
           </div>
         </div>
 
-        <h1 className="text-4xl font-bold text-gray-900 mb-4">Checkout Cancelled</h1>
+        <h1 className="text-4xl font-black uppercase tracking-[0.15em] text-white mb-4">
+          Checkout Cancelled
+        </h1>
 
-        <p className="text-xl text-gray-600 mb-2">
+        <p className="text-xl text-gray-300 mb-2">
           Your checkout was cancelled.
         </p>
 
-        <p className="text-gray-600 mb-8">
-          Your cart items are still saved. You can review and update your cart anytime.
+        <p className="text-gray-400 mb-8">
+          No worries! Your cart items are still saved. You can review and update your cart anytime.
         </p>
 
-        <div className="space-y-4">
-          <Link href="/cart">
-            <Button className="w-full">Return to Cart</Button>
+        <div className="space-y-3">
+          <Link href="/cart" className="block">
+            <Button className="w-full bg-red-600 hover:bg-red-700">
+              Return to Cart
+            </Button>
           </Link>
 
-          <Link href="/shop">
-            <Button variant="secondary" className="w-full text-gray-700">
+          <Link href="/shop" className="block">
+            <Button variant="secondary" className="w-full border border-gray-600 text-gray-300 hover:text-white">
               Continue Shopping
             </Button>
           </Link>

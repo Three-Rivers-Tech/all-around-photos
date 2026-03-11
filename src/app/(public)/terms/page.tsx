@@ -1,87 +1,78 @@
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
- title: 'Terms of Service | All Around Photos LLC',
-  description: 'Terms of service for All Around Photos LLC drone photography services.',
+  title: 'Terms of Service | All Around Photos LLC',
+  description: 'Terms of service for All Around Photos LLC.',
 };
 
 export default function TermsOfServicePage() {
   return (
-    <div className="min-h-screen bg-neutral-50 py-12">
+    <div className="min-h-screen bg-black py-12 md:py-20">
       <div className="container mx-auto px-4 max-w-4xl">
-        <div className="bg-white rounded-2xl shadow-lg p-8 md:p-12">
-          <h1 className="text-4xl font-bold text-neutral-90 mb-8">Terms of Service</h1>
-          
-          <div className="prose prose-lg max-w-none text-neutral-700">
-            <p className="mb-6">
-              <strong>Last updated:</strong> October 2, 2025
-            </p>
+        <h1 className="text-5xl md:text-6xl font-black uppercase tracking-[0.15em] text-center text-white mb-12">
+          Terms of Service
+        </h1>
 
-            <h2 className="text-2xl font-semibold text-neutral-800 mb-4">Acceptance of Terms</h2>
-            <p className="mb-6">
-              By using All Around Photos LLC services, you agree to be bound by these Terms of Service. 
-              If you do not agree to these terms, please do not use our services.
-            </p>
+        <div className="space-y-8 text-gray-300">
+          <p className="text-sm text-gray-400">
+            <strong>Last updated:</strong> March 10, 2026
+          </p>
 
-            <h2 className="text-2xl font-semibold text-neutral-800 mb-4">Services Provided</h2>
-            <p className="mb-6">
-              All Around Photos LLC provides professional drone photography and inspection services. 
-              All services are subject to FAA regulations and local flight restrictions. 
-              We reserve the right to modify or discontinue services at any time.
+          <section className="border-l-4 border-red-600 pl-8">
+            <h2 className="text-2xl font-bold text-white mb-4">Acceptance of Terms</h2>
+            <p>
+              By using All Around Photos LLC services and products, you agree to be bound by these Terms of Service. If you do not agree to these terms, please do not use our services.
             </p>
+          </section>
 
-            <h2 className="text-2xl font-semibold text-neutral-800 mb-4">Booking and Payment</h2>
-            <p className="mb-6">
-              All bookings require advance notice and are subject to availability. 
-              Payment is due as specified in your service agreement. 
-              Cancellations must be made at least 24 hours in advance to avoid fees.
+          <section className="border-l-4 border-red-600 pl-8">
+            <h2 className="text-2xl font-bold text-white mb-4">Products and Services</h2>
+            <p>
+              All Around Photos LLC provides custom apparel, custom goods, and drone photography services. All products are made to order and services are subject to availability. We reserve the right to modify or discontinue products or services at any time with notice.
             </p>
+          </section>
 
-            <h2 className="text-2xl font-semibold text-neutral-800 mb-4">Weather and Scheduling</h2>
-            <p className="mb-6">
-              Services are weather-dependent and may be rescheduled due to unsafe flying conditions. 
-              We will make reasonable efforts to reschedule at your convenience. 
-              No additional fees will be charged for weather-related rescheduling.
+          <section className="border-l-4 border-red-600 pl-8">
+            <h2 className="text-2xl font-bold text-white mb-4">Payment and Pricing</h2>
+            <p>
+              Payment is due at the time of purchase for ready-to-wear items. Custom orders require 50% deposit with balance due upon completion. All prices are in USD and do not include applicable taxes. Custom orders are non-refundable after a 7-day review period from quote acceptance.
             </p>
+          </section>
 
-            <h2 className="text-2xl font-semibold text-neutral-800 mb-4">Intellectual Property</h2>
-            <p className="mb-6">
-              All photographs and videos created by All Around Photos LLC remain our intellectual property 
-              unless otherwise transferred in writing. Clients may use provided content for their intended 
-              business purposes as specified in the service agreement.
+          <section className="border-l-4 border-red-600 pl-8">
+            <h2 className="text-2xl font-bold text-white mb-4">Shipping and Delivery</h2>
+            <p>
+              We ship to addresses within the United States. Shipping costs are calculated at checkout based on weight and destination. Delivery times are estimates and not guaranteed. We are not responsible for delays caused by shipping carriers.
             </p>
+          </section>
 
-            <h2 className="text-2xl font-semibold text-neutral-800 mb-4">Liability</h2>
-            <p className="mb-6">
-              All Around Photos LLC maintains comprehensive liability insurance. 
-              We are not liable for indirect, incidental, or consequential damages. 
-              Our total liability is limited to the amount paid for the services in question.
+          <section className="border-l-4 border-red-600 pl-8">
+            <h2 className="text-2xl font-bold text-white mb-4">Custom Orders</h2>
+            <p>
+              Custom orders require clear communication about design specifications, sizes, colors, and quantities. Once an order is placed and payment is made, modifications are subject to additional fees or may not be possible. Custom products are made to your specifications and are not returnable.
             </p>
+          </section>
 
-            <h2 className="text-2xl font-semibold text-neutral-800 mb-4">Equipment and Safety</h2>
-            <p className="mb-6">
-              All equipment is maintained according to manufacturer specifications and FAA requirements. 
-              We follow all safety protocols and maintain safe distances from people and property. 
-              Client property access must be authorized and safe for operations.
+          <section className="border-l-4 border-red-600 pl-8">
+            <h2 className="text-2xl font-bold text-white mb-4">Drone Photography Services</h2>
+            <p>
+              Our drone photography services are subject to all FAA regulations and local flight restrictions. We are not responsible for flight restrictions that prevent us from completing services. Services will be rescheduled at no additional charge if weather or regulations prevent completion.
             </p>
+          </section>
 
-            <h2 className="text-2xl font-semibold text-neutral-800 mb-4">Modifications</h2>
-            <p className="mb-6">
-              These terms may be modified at any time. Continued use of our services constitutes 
-              acceptance of any changes. Significant changes will be communicated to clients.
+          <section className="border-l-4 border-red-600 pl-8">
+            <h2 className="text-2xl font-bold text-white mb-4">Intellectual Property</h2>
+            <p>
+              All photographs, designs, and content provided by All Around Photos LLC remain our property unless otherwise agreed. Custom designs created by customers remain the property of the customers. You may not reproduce, distribute, or sell our content without express written permission.
             </p>
+          </section>
 
-            <h2 className="text-2xl font-semibold text-neutral-800 mb-4">Contact Information</h2>
-            <p className="mb-6">
-              For questions about these terms, please contact us at info@allaroundphotos.com 
-              or through our contact form.
+          <section className="border-l-4 border-red-600 pl-8">
+            <h2 className="text-2xl font-bold text-white mb-4">Limitation of Liability</h2>
+            <p>
+              All Around Photos LLC is not liable for indirect, incidental, special, or consequential damages arising from your use of our products or services. Our total liability is limited to the amount you paid for the product or service.
             </p>
-
-            <p className="mt-8 text-sm text-neutral-500">
-              By using our services, you acknowledge that you have read, understood, and agree 
-              to be bound by these Terms of Service.
-            </p>
-          </div>
+          </section>
         </div>
       </div>
     </div>
