@@ -8,5 +8,11 @@
   "assets": {
     "binding": "ASSETS",
     "directory": ".open-next/assets"
-  }
+  },
+  "routes": [
+    {
+      "pattern": "*allaroundphotosllc.net/*",
+      "zone_name": "allaroundphotosllc.net"
+    }
+  ]
 }

@@ -139,14 +139,15 @@ export function CustomOrderForm() {
         <Select
           name="style"
           value={formData.style}
-          onChange={handleChange}
+          onChange={(value) => setFormData(prev => ({ ...prev, style: value }))}
+          options={[
+            { value: 'streetwear', label: 'Streetwear' },
+            { value: 'classic', label: 'Classic' },
+            { value: 'artistic', label: 'Artistic' },
+            { value: 'custom', label: 'Custom' },
+          ]}
           className="mt-2 bg-slate-700 text-white"
-        >
-          <option value="streetwear">Streetwear</option>
-          <option value="classic">Classic</option>
-          <option value="artistic">Artistic</option>
-          <option value="custom">Custom</option>
-        </Select>
+        />
       </div>
 
       {/* Budget */}
@@ -157,14 +158,15 @@ export function CustomOrderForm() {
         <Select
           name="budget"
           value={formData.budget}
-          onChange={handleChange}
+          onChange={(value) => setFormData(prev => ({ ...prev, budget: value }))}
+          options={[
+            { value: '100-250', label: '$100 - $250' },
+            { value: '250-500', label: '$250 - $500' },
+            { value: '500-1000', label: '$500 - $1,000' },
+            { value: '1000+', label: '$1,000+' },
+          ]}
           className="mt-2 bg-slate-700 text-white"
-        >
-          <option value="100-250">$100 - $250</option>
-          <option value="250-500">$250 - $500</option>
-          <option value="500-1000">$500 - $1,000</option>
-          <option value="1000+">$1,000+</option>
-        </Select>
+        />
       </div>
 
       {/* Timeline */}
@@ -175,14 +177,15 @@ export function CustomOrderForm() {
         <Select
           name="timeline"
           value={formData.timeline}
-          onChange={handleChange}
+          onChange={(value) => setFormData(prev => ({ ...prev, timeline: value }))}
+          options={[
+            { value: '1-2-weeks', label: '1-2 weeks' },
+            { value: '2-4-weeks', label: '2-4 weeks' },
+            { value: '1-2-months', label: '1-2 months' },
+            { value: 'flexible', label: 'Flexible' },
+          ]}
           className="mt-2 bg-slate-700 text-white"
-        >
-          <option value="1-2-weeks">1-2 weeks</option>
-          <option value="2-4-weeks">2-4 weeks</option>
-          <option value="1-2-months">1-2 months</option>
-          <option value="flexible">Flexible</option>
-        </Select>
+        />
       </div>
 
       {/* Description */}

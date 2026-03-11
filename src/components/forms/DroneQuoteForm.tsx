@@ -188,15 +188,16 @@ export function DroneQuoteForm() {
         <Select
           name="propertyType"
           value={formData.propertyType}
-          onChange={handleChange}
+          onChange={(value) => setFormData(prev => ({ ...prev, propertyType: value }))}
+          options={[
+            { value: 'residential', label: 'Residential' },
+            { value: 'commercial', label: 'Commercial' },
+            { value: 'land', label: 'Land' },
+            { value: 'development', label: 'Development' },
+            { value: 'other', label: 'Other' },
+          ]}
           className="mt-2 bg-slate-700 text-white"
-        >
-          <option value="residential">Residential</option>
-          <option value="commercial">Commercial</option>
-          <option value="land">Land</option>
-          <option value="development">Development</option>
-          <option value="other">Other</option>
-        </Select>
+        />
       </div>
 
       {/* Service Type */}
@@ -244,14 +245,15 @@ export function DroneQuoteForm() {
         <Select
           name="timeline"
           value={formData.timeline}
-          onChange={handleChange}
+          onChange={(value) => setFormData(prev => ({ ...prev, timeline: value }))}
+          options={[
+            { value: 'asap', label: 'ASAP' },
+            { value: '1-2-weeks', label: '1-2 weeks' },
+            { value: '1-month', label: '1 month' },
+            { value: 'flexible', label: 'Flexible' },
+          ]}
           className="mt-2 bg-slate-700 text-white"
-        >
-          <option value="asap">ASAP</option>
-          <option value="1-2-weeks">1-2 weeks</option>
-          <option value="1-month">1 month</option>
-          <option value="flexible">Flexible</option>
-        </Select>
+        />
       </div>
 
       {/* Budget */}
@@ -262,14 +264,15 @@ export function DroneQuoteForm() {
         <Select
           name="budget"
           value={formData.budget}
-          onChange={handleChange}
+          onChange={(value) => setFormData(prev => ({ ...prev, budget: value }))}
+          options={[
+            { value: '500-1000', label: '$500 - $1,000' },
+            { value: '1000-2500', label: '$1,000 - $2,500' },
+            { value: '2500-5000', label: '$2,500 - $5,000' },
+            { value: '5000+', label: '$5,000+' },
+          ]}
           className="mt-2 bg-slate-700 text-white"
-        >
-          <option value="500-1000">$500 - $1,000</option>
-          <option value="1000-2500">$1,000 - $2,500</option>
-          <option value="2500-5000">$2,500 - $5,000</option>
-          <option value="5000+">$5,000+</option>
-        </Select>
+        />
       </div>
 
       {/* Notes */}
