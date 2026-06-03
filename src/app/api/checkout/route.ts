@@ -2,10 +2,18 @@ import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import { z } from 'zod';
 import { products } from '@/lib/products';
+import {
+  buildCheckoutSessionParams,
+  getConfiguredSiteUrl,
+  type CheckoutItemForStripe,
+} from '@/lib/stripe-checkout';
 
 const STRIPE_API_VERSION: Stripe.LatestApiVersion = '2026-02-25.clover';
 
-const checkoutRateLimitMap = new Map<string, { count: number; resetAt: number }>();
+const checkoutRateLimitMap = new Map<
+  string,
+  { count: number; resetAt: number }
+>();
 
 function checkCheckoutRateLimit(
   ip: string | null,
@@ -68,7 +76,9 @@ export async function POST(request: NextRequest) {
     const ip = getRequestIp(request);
     if (!checkCheckoutRateLimit(ip)) {
       return NextResponse.json(
-        { error: 'Too many checkout attempts. Please wait before trying again.' },
+        {
+          error: 'Too many checkout attempts. Please wait before trying again.',
+        },
         { status: 429 }
       );
     }
@@ -85,15 +95,10 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const validatedRequest = checkoutRequestSchema.parse(body);
 
-    const validatedItems: Array<{
-      product: (typeof products)[0];
-      quantity: number;
-      size: string;
-      color: string;
-    }> = [];
+    const validatedItems: CheckoutItemForStripe[] = [];
 
     for (const item of validatedRequest.items) {
-      const product = products.find((p) => p.id === item.id);
+      const product = products.find(p => p.id === item.id);
 
       if (!product) {
         return NextResponse.json(
@@ -114,14 +119,22 @@ export async function POST(request: NextRequest) {
 
       if (item.size && product.sizes && !product.sizes.includes(item.size)) {
         return NextResponse.json(
-          { error: `Size "${item.size}" is not available for ${product.name}.` },
+          {
+            error: `Size "${item.size}" is not available for ${product.name}.`,
+          },
           { status: 400 }
         );
       }
 
-      if (item.color && product.colors && !product.colors.includes(item.color)) {
+      if (
+        item.color &&
+        product.colors &&
+        !product.colors.includes(item.color)
+      ) {
         return NextResponse.json(
-          { error: `Color "${item.color}" is not available for ${product.name}.` },
+          {
+            error: `Color "${item.color}" is not available for ${product.name}.`,
+          },
           { status: 400 }
         );
       }
@@ -134,33 +147,22 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    const origin =
-      request.headers.get('origin') ||
-      process.env.NEXT_PUBLIC_SITE_URL ||
-      'http://localhost:3000';
+    const siteUrl = getConfiguredSiteUrl();
 
-    const session = await stripe.checkout.sessions.create({
-      mode: 'payment',
-      line_items: validatedItems.map((item) => ({
-        price_data: {
-          currency: 'usd',
-          product_data: {
-            name: item.product.name,
-            description: [item.size, item.color].filter(Boolean).join(' / ') || undefined,
-            images: [`${origin}${item.product.image}`],
-          },
-          unit_amount: item.product.price,
-        },
-        quantity: item.quantity,
-      })),
-      success_url: `${origin}/checkout/success`,
-      cancel_url: `${origin}/checkout/cancel`,
-    });
+    const session = await stripe.checkout.sessions.create(
+      buildCheckoutSessionParams({
+        siteUrl,
+        items: validatedItems,
+      })
+    );
 
     return NextResponse.json({ url: session.url });
   } catch (err) {
     if (err instanceof z.ZodError) {
-      return NextResponse.json({ error: 'Invalid cart data.' }, { status: 400 });
+      return NextResponse.json(
+        { error: 'Invalid cart data.' },
+        { status: 400 }
+      );
     }
 
     const message = err instanceof Error ? err.message : 'Unknown error';
@@ -168,7 +170,9 @@ export async function POST(request: NextRequest) {
       message.includes('api_key') ||
       message.includes('token') ||
       message.includes('secret');
-    const sanitizedMessage = hasSensitiveData ? 'Payment processing error' : message;
+    const sanitizedMessage = hasSensitiveData
+      ? 'Payment processing error'
+      : message;
 
     console.error('Stripe checkout error:', sanitizedMessage);
     return NextResponse.json(
